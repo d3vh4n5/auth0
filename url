@@ -1,0 +1,9 @@
+https://mmi-dev.us.auth0.com/authorize
+?response_type=code
+&client_id=Z0sKfgjJmnA2SolvrV8c8vL4HWORYtBr
+&redirect_uri=https%3A%2F%2Fmiapi.com%2Fauth%2Fcallback
+&scope=openid%20profile%20email%20offline_access
+&audience=https%3A%2F%2Fdev-api.novacloud.live%2Fgraphql
+&state=abc123
+&code_challenge=XYZ456
+&code_challenge_method=S256
