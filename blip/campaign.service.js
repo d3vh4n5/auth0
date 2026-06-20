@@ -45,7 +45,7 @@ export async function sendTemplate(phone, templateName, templateLanguage){
         }
     }
     
-    console.log({blipBody: JSON.stringify(blipBody)})
+    // console.log({blipBody: JSON.stringify(blipBody)})
 
     try {
         const resp = await fetch(BLIP_ROUTER_URL, {
