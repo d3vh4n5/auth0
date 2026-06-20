@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Connection Failed</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+
+  header {
+    background-color: #242424;
+  }
+
+  section {
+    padding: 10px 20px;
+  }
+
+  .card {
+    max-width: 300px;
+    min-height: 450px;
+    background: #f1f1f1;
+    border-radius: 3px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .error {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    color: #dc3545;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #50464c;
+    line-height: 1.5;
+  }
+
+  #counter {
+    margin-top: 24px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #dc3545;
+  }
+
+  #fallback {
+    display: none;
+    margin-top: 20px;
+  }
+
+  .retry-message {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #666;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <header>
+    <img
+      class="sp-default-logo"
+      src="https://digito.site/images/logos/logo-digito-home.png#joomlaImage://local-images/logos/logo-digito-home.png?width=150&amp;height=55"
+      alt="DIGITO"
+    >
+
+    <div class="error">❌</div>
+
+    <h1>Connection Failed</h1>
+  </header>
+
+  <section>
+
+    <p>
+      We couldn't connect your account.
+    </p>
+
+    <p>
+      Please return to the chatbot and try the authentication process again.
+    </p>
+
+    <div class="retry-message">
+      If the problem persists, contact support.
+    </div>
+
+    <p>
+      This window will close automatically in
+      <span id="counter">5</span>
+      seconds.
+    </p>
+
+    <div id="fallback">
+      You can safely close this tab.
+    </div>
+
+  </section>
+
+</div>
+
+<script>
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+}
+
+let seconds = 5;
+
+const counter = document.getElementById("counter");
+
+const interval = setInterval(() => {
+
+  seconds--;
+
+  counter.textContent = seconds;
+
+  if (seconds <= 0) {
+
+    clearInterval(interval);
+
+    if (isMobile()) {
+      window.location.href = "https://wa.me/5491171413315";
+
+    } else {
+      window.close();
+
+      setTimeout(() => {
+        document.getElementById("fallback").style.display = "block";
+      }, 1000);
+
+    }
+
+  }
+
+}, 1000);
+</script>
+
+</body>
+</html>

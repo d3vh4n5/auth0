@@ -1,3 +1,4 @@
+import path from 'path';
 import express from "express";
 import crypto from "crypto";
 import { auth } from "express-oauth2-jwt-bearer";
@@ -21,7 +22,7 @@ app.get('/session/:contactIdentity', (req, res) => {
   const { contactIdentity } = req.params
   console.log(contactIdentity)
   const userSession = sessions.find(s => s.identity == contactIdentity)
-  console.log({userSession})
+  // console.log({userSession})
   if (!userSession) return res.send("NO_SESSION")
 
   const REFRESH_MARGIN = 5 * 60 * 1000; // 5 minutos
@@ -70,9 +71,6 @@ app.post("/login", (req, res) => {
       url
     }) // Guardaría el verifier asociado al state en un lugar seguro (DB)
 
-  console.log(sessions)
-
-    console.log("Resulting url:", url);
   return res.send(url);
   res.redirect(url);
 });
@@ -115,11 +113,18 @@ app.get("/auth/callback", async (req, res) => {
 
     const tokens = await response.json();
 
-    console.log({authResponseStatus: response.status, tokens})
+    // console.log({authResponseStatus: response.status, tokens})
 
     if (!response.ok) {
       const templateResult = await sendTemplate(phone, 'auth_result_fail_v1', 'en_US')
-      console.error("Error de autenticacion: ", {tokens, templateResult})
+      console.error("Error de autenticacion: ", {tokens})
+      return res.sendFile(
+        path.join(
+          process.cwd(),
+          'public',
+          'auth-fail.html'
+        )
+      )
       return res.status(401).json(tokens);
     }
 
@@ -134,20 +139,27 @@ app.get("/auth/callback", async (req, res) => {
       })
     }
 
-    console.log({sessions})
+    // console.log({sessions})
     // Template de verificación exitosa
     const templateResult = await sendTemplate(phone, 'auth_result_ok_v1', 'en_US')
-    // TODO: Setear variable access_token en el bot con una duracion igual al tiempo de expiración del token
 
     const loginfo = {
         verifier,
         message: "Authentication successful",
         tokens,
-        templateResult
+        // templateResult
     }
     // console.log(loginfo)
     // res.json(loginfo);
-    res.redirect('https://wa.me/+5491171413315');
+    console.log("Authentication successful")
+    return res.sendFile(
+      path.join(
+        process.cwd(),
+        'public',
+        'auth-success.html'
+      )
+    )
+    return res.redirect('https://wa.me/+5491171413315');
 });
 
 app.use(express.urlencoded({ extended: true }));

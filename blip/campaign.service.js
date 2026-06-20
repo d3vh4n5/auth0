@@ -58,7 +58,7 @@ export async function sendTemplate(phone, templateName, templateLanguage){
         })
 
         const data = await resp.json(); 
-        console.log("Response body:", data);
+        console.log("Blip template response:", data.status);
         return data
         res.status(200).send('Evento recibido');
     } catch (error) {

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Authentication Successful</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f8f8f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  header{
+    background-color: #242424;
+  }
+
+  section{
+    padding: 10px 20px;
+  }
+
+  .card {
+    max-width: 300px;
+    min-height: 450px;
+    background: #f1f1f1;
+    border-radius: 3px;
+    /* padding: 40px; */
+    text-align: center;
+    /* box-shadow: 0 10px 30px rgba(0,0,0,.08); */
+    overflow: hidden;
+  }
+
+  .success {
+    font-size: 64px;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    color: #fbd913;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #50464c;
+    line-height: 1.5;
+  }
+
+  #counter {
+    margin-top: 24px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #0066cc;
+  }
+
+  #fallback {
+    display: none;
+    margin-top: 20px;
+  }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <header>
+        <img class="sp-default-logo" src="https://digito.site/images/logos/logo-digito-home.png#joomlaImage://local-images/logos/logo-digito-home.png?width=150&amp;height=55" srcset="" alt="DIGITO">
+        <div class="success">✅</div>
+      
+        <h1>Authentication Successful</h1>
+    </header>
+    <section>
+        <p>
+          Your account has been connected successfully.
+        </p>
+      
+        <p>
+          This window will close automatically in
+          <span id="counter">5</span> seconds.
+        </p>
+      
+        <div id="fallback">
+          You can safely close this tab and return to your chat.
+        </div>
+    </section>
+
+</div>
+
+<script>
+function isMobile() {
+  return /Android|iPhone|iPad|iPod|Opera Mini|IEMobile/i.test(
+    navigator.userAgent
+  );
+}
+
+let seconds = 5;
+
+const counter = document.getElementById("counter");
+
+const interval = setInterval(() => {
+  seconds--;
+
+  counter.textContent = seconds;
+
+  if (seconds <= 0) {
+    clearInterval(interval);
+
+    if (isMobile()) {
+      window.location.href = "https://wa.me/+5491171413315";
+    } else {
+      window.close();
+
+      setTimeout(() => {
+        document.getElementById("fallback").style.display = "block";
+      }, 1000);
+    }
+  }
+}, 1000);
+</script>
+
+</body>
+</html>
