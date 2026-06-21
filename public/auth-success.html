@@ -8,25 +8,30 @@
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f8f8f8;
+    /* background: #f8f8f8; */
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
   }
   header{
+    padding: 30px;
     background-color: #242424;
   }
 
   section{
     padding: 10px 20px;
+    background: #f1f1f1;
+    flex: 1;
   }
 
   .card {
+    display: flex;
+    flex-direction: column;
     max-width: 300px;
-    min-height: 450px;
-    background: #f1f1f1;
-    border-radius: 3px;
+    min-height: 500px;
+    border-radius: 4px;
     /* padding: 40px; */
     text-align: center;
     /* box-shadow: 0 10px 30px rgba(0,0,0,.08); */
@@ -34,13 +39,14 @@
   }
 
   .success {
-    font-size: 64px;
+    font-size: 54px;
     margin-bottom: 16px;
   }
 
   h1 {
-    color: #fbd913;
-    margin-bottom: 12px;
+    color: #7cb342;
+    font-size: 24px;
+    margin: 0;
   }
 
   p {

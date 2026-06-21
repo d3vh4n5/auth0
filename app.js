@@ -23,10 +23,13 @@ app.get('/session/:contactIdentity', (req, res) => {
   console.log(contactIdentity)
   const userSession = sessions.find(s => s.identity == contactIdentity)
   // console.log({userSession})
-  if (!userSession) return res.send("NO_SESSION")
+  if (!userSession || !userSession.expiresAt){
+    console.log(userSession)
+    console.log("no session")
+     return res.send("NO_SESSION")
+  }
 
   const REFRESH_MARGIN = 5 * 60 * 1000; // 5 minutos
-
   if (Date.now() >= userSession.expiresAt - REFRESH_MARGIN) {
     return res.send("TOKEN_EXPIRED")
   }

@@ -2,44 +2,50 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Connection Failed</title>
+<title>Authentication Failed</title>
 
 <style>
   body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background: #f8f8f8;
+    /* background: #f8f8f8; */
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
     height: 100vh;
   }
 
-  header {
+  header{
+    padding: 30px;
     background-color: #242424;
   }
 
-  section {
+  section{
     padding: 10px 20px;
+    background: #f1f1f1;
+    flex: 1;
   }
 
   .card {
     max-width: 300px;
-    min-height: 450px;
-    background: #f1f1f1;
+    min-height: 500px;
+    display: flex;
+    flex-direction: column;
     border-radius: 3px;
     text-align: center;
     overflow: hidden;
   }
 
   .error {
-    font-size: 64px;
+    font-size: 54px;
     margin-bottom: 16px;
   }
 
   h1 {
     color: #dc3545;
-    margin-bottom: 12px;
+    margin: 0;
+    font-size: 24px;
   }
 
   p {
@@ -79,7 +85,7 @@
 
     <div class="error">❌</div>
 
-    <h1>Connection Failed</h1>
+    <h1>Authentication Failed</h1>
   </header>
 
   <section>
@@ -132,7 +138,7 @@ const interval = setInterval(() => {
     clearInterval(interval);
 
     if (isMobile()) {
-      window.location.href = "https://wa.me/5491171413315";
+      window.location.href = "https://wa.me/+5491171413315";
 
     } else {
       window.close();
