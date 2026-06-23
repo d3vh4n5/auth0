@@ -16,34 +16,76 @@ const REDIRECT_URI = process.env.REDIRECT_URI; // Mi callback
 const AUDIENCE = process.env.AUDIENCE // Esta es la API a la que estoy pidiendo acceso
 
 // El codigo verificador debería guardarse en DB junto con el state.
-const sessions = []
+const sessions = new Map();
+const authEvents = [];
 
-app.get('/session/:contactIdentity', (req, res) => {
-  const { contactIdentity } = req.params
-  console.log(contactIdentity)
-  const userSession = sessions.find(s => s.identity == contactIdentity)
-  // console.log({userSession})
-  if (!userSession || !userSession.expiresAt){
-    console.log(userSession)
-    console.log("no session")
-     return res.send("NO_SESSION")
+function addAuthEvent(event) {
+
+  authEvents.push(event);
+
+  if (authEvents.length > 1000) {
+    authEvents.shift();
+  }
+}
+
+app.get('/v1/digito-auth0/session/:contactIdentity', (req, res) => {
+
+  const { contactIdentity } = req.params;
+  const userSession = sessions.get(contactIdentity);
+  
+  if (!userSession?.access_token) {
+    
+    addAuthEvent({
+      identity: contactIdentity,
+      event: 'NO_SESSION',
+      timestamp: Date.now()
+    });
+    console.log(contactIdentity, "NO_SESSION")
+
+    return res.send('NO_SESSION');
   }
 
-  const REFRESH_MARGIN = 5 * 60 * 1000; // 5 minutos
+  const REFRESH_MARGIN = 5 * 60 * 1000;
+
   if (Date.now() >= userSession.expiresAt - REFRESH_MARGIN) {
-    return res.send("TOKEN_EXPIRED")
+
+    addAuthEvent({
+      identity: contactIdentity,
+      event: 'TOKEN_EXPIRED',
+      timestamp: Date.now()
+    });
+    console.log(contactIdentity, "TOKEN_EXPIRED")
+    return res.send('TOKEN_EXPIRED');
   }
 
-  return res.send("TOKEN_OK")
-})
+  addAuthEvent({
+    identity: contactIdentity,
+    event: 'TOKEN_OK',
+    timestamp: Date.now()
+  });
+  console.log(contactIdentity, "TOKEN_OK")
+  return res.send('TOKEN_OK');
+});
 
-app.post("/login", (req, res) => {
+app.get('/v1/digito-auth0/events/:contactIdentity', (req, res) => {
+
+  const { contactIdentity } = req.params;
+
+  const events = authEvents.filter(
+    e => e.identity === contactIdentity
+  );
+
+  res.json(events);
+});
+
+
+app.post("/v1/digito-auth0/login", (req, res) => {
   const { identity } = req.body
 
   if (!identity) return res.status(400).json({ error: "identity not found" })
 
     const verifier = crypto.randomBytes(32).toString("base64url");
-
+    
   const challenge = crypto
     .createHash("sha256")
     .update(verifier)
@@ -67,23 +109,38 @@ app.post("/login", (req, res) => {
     });
 
     // Se guardaria en la tabla de sesiones
-    sessions.push({
+    const session = {
       state,
       verifier,
       identity,
-      url
-    }) // Guardaría el verifier asociado al state en un lugar seguro (DB)
+      url,
+      createdAt: Date.now()
+    };
+
+    sessions.set(identity, session);
+
+    addAuthEvent({
+      identity,
+      state,
+      event: 'LOGIN_STARTED',
+      timestamp: Date.now()
+    });
 
   return res.send(url);
   res.redirect(url);
 });
 
+// /v1/digito-auth0/callback
 app.get("/auth/callback", async (req, res) => {
   const { code, state } = req.query;
   let verifier, identity, user;
 
   try{
-    user = sessions.find(verifier => verifier.state == state)
+    user = [...sessions.values()]
+      .find(s => s.state === state);
+
+    if (!user)
+      return res.status(400).send('Invalid state');
     verifier = user.verifier
     identity = user.identity
   
@@ -121,6 +178,13 @@ app.get("/auth/callback", async (req, res) => {
     if (!response.ok) {
       const templateResult = await sendTemplate(phone, 'auth_result_fail_v1', 'en_US')
       console.error("Error de autenticacion: ", {tokens})
+      addAuthEvent({
+        identity: user?.identity,
+        state,
+        event: 'LOGIN_FAILED',
+        error: error.message,
+        timestamp: Date.now()
+      });
       return res.sendFile(
         path.join(
           process.cwd(),
@@ -131,20 +195,24 @@ app.get("/auth/callback", async (req, res) => {
       return res.status(401).json(tokens);
     }
 
-    const index = sessions.findIndex( u => u.state == state )
+    sessions.set(user.identity, {
+      ...user,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expiresAt: Date.now() + (tokens.expires_in * 1000),
+      authenticatedAt: Date.now()
+    });
 
-    if (index !== -1) {
-      sessions.splice(index, 1);
-      sessions.push({
-        ...user,
-        access_token : tokens.access_token,
-        expiresAt : Date.now() + (tokens.expires_in * 1000)
-      })
-    }
+    addAuthEvent({
+      identity: user.identity,
+      state,
+      event: 'LOGIN_SUCCESS',
+      timestamp: Date.now()
+    });
 
     // console.log({sessions})
     // Template de verificación exitosa
-    const templateResult = await sendTemplate(phone, 'auth_result_ok_v1', 'en_US')
+    // const templateResult = await sendTemplate(phone, 'auth_result_ok_v1', 'en_US')
 
     const loginfo = {
         verifier,
