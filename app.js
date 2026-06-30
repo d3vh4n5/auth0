@@ -176,13 +176,13 @@ app.get("/auth/callback", async (req, res) => {
     // console.log({authResponseStatus: response.status, tokens})
 
     if (!response.ok) {
-      const templateResult = await sendTemplate(phone, 'auth_result_fail_v1', 'en_US')
+      const templateResult = await sendTemplate(phone, 'auth_result_fail_v2', 'en_US')
       console.error("Error de autenticacion: ", {tokens})
       addAuthEvent({
         identity: user?.identity,
         state,
         event: 'LOGIN_FAILED',
-        error: error.message,
+        // error: error.message,
         timestamp: Date.now()
       });
       return res.sendFile(
@@ -212,7 +212,7 @@ app.get("/auth/callback", async (req, res) => {
 
     // console.log({sessions})
     // Template de verificación exitosa
-    // const templateResult = await sendTemplate(phone, 'auth_result_ok_v1', 'en_US')
+    const templateResult = await sendTemplate(phone, 'auth_result_ok_v2', 'en_US')
 
     const loginfo = {
         verifier,
